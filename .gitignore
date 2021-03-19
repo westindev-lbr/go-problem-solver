@@ -1,0 +1,13 @@
+# Ignore files called 'file.ext'
+file.ext
+
+# Ignoring directories
+bin/
+gen/
+
+# Ignoring files by extension
+*.apk
+*.class
+*.out
+*.swp
+*.o
