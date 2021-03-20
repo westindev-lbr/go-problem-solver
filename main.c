@@ -27,8 +27,9 @@ plateau creer(int x, int y) {
 
 /*fonction placer une pierre*/
 void placer_pierre(plateau *tab, int i, int j, pierre p) {
-  if (i < tab->col && j < tab->lig) {
-	*(tab->t + i + j *tab->col) = p;
+  if (i < tab->lig && j < tab->col) {
+	
+    tab->t[i + (j * tab->col)] = p;
     p.x=i;
     p.y=j;
   }
@@ -44,7 +45,8 @@ void voirtab(plateau *tab) {
   for (i = 0; i < tab->lig; i++) {
 	printf ("%d|", i);
 	for (j = 0; j < tab->col; j++) {
-	  printf (" %2c ", tab->t->color);
+	  //printf (" %2c ", tab->t->color);
+      printf (" %2c ", tab->t[i * tab->col + j].color);
 	}
 	printf("\n");
   }
@@ -77,9 +79,6 @@ int main (){
     placer_pierre(ptr,0,1,pn);
     voirtab(ptr);
 
-    
-
-    
     return 0;    
 }
 
