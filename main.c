@@ -1,40 +1,85 @@
 #include <stdio.h>
+#include <stdlib.h>
 
-struct pierre_noire{
+struct pierre{
+    char color;
     int x;
     int y;
 };
 
-struct pierre_blanche{
-    int x;
-    int y;
-};
+typedef struct pierre pierre;
+typedef pierre * tabpierre;
+struct tableau {
+  tabpierre t;
+  int col;
+  int lig;
+} ;
+typedef struct tableau plateau;
 
-typedef struct pierre_noire noire;
-typedef struct pierre_blanche blanche;
-
-
-/*Pierre est isolé quand 
-aucune autre pierre n'est a coté. 
-x',y' ,  +1 ou -1 = vide   
-
-*/
-/*
-int est_isole(noire n){
-    if (p.x)
-    switch
-
+/*Création d'un plateau*/
+plateau creer(int x, int y) {
+  plateau tab;
+  tab.col = y;
+  tab.lig = x;
+  tab.t = (tabpierre) malloc ((size_t) (y * x * sizeof(pierre)));
+  return tab;
 }
-*/
+
+/*fonction placer une pierre*/
+void placer_pierre(plateau *tab, int i, int j, pierre p) {
+  if (i < tab->col && j < tab->lig) {
+	*(tab->t + i + j *tab->col) = p;
+    p.x=i;
+    p.y=j;
+  }
+}
+
+/*fonction affiche tableau */
+void voirtab(plateau *tab) {
+  int i, j;
+  for (j = 0; j < tab->col; j++) {
+	printf  (" %2d ", j);
+  }
+  printf("\n");
+  for (i = 0; i < tab->lig; i++) {
+	printf ("%d|", i);
+	for (j = 0; j < tab->col; j++) {
+	  printf (" %2c ", tab->t->color);
+	}
+	printf("\n");
+  }
+}
 
 
 int main (){
-    noire n;
-    n.x = 0;
-    n.y = 0; 
-    printf("pierre noire = (%d,%d)\n", n.x,n.y);
+    /*déclaration plateau de jeu*/
+    int sx, sy;
+    plateau tab;
+    sx = 6;
+    sy = 6;
+    tab = creer(sx, sy);
 
+    /*création de pierre*/
+    pierre pn;
+    pn.color = 'N';
 
+    pierre pb;
+    pb.color = 'B';
 
-    return 0;
+    /*Pointeur vers tab*/
+    plateau *ptr;
+    ptr = &tab;
+    
+    /*Test utilisation du pointeur*/
+    voirtab(ptr);
+    /*test placer une pierre */
+    placer_pierre(ptr,0,0,pb);
+    placer_pierre(ptr,0,1,pn);
+    voirtab(ptr);
+
+    
+
+    
+    return 0;    
 }
+
