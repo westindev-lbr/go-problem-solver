@@ -28,8 +28,7 @@ plateau creer(int x, int y) {
 /*fonction placer une pierre*/
 void placer_pierre(plateau *tab, int i, int j, pierre p) {
   if (i < tab->lig && j < tab->col) {
-	
-    tab->t[i + (j * tab->col)] = p;
+    tab->t[(i * tab->col) + j] = p;
     p.x=i;
     p.y=j;
   }
