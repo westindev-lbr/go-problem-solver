@@ -17,7 +17,10 @@ Voici les premières étapes de votre travail :
 - quel est le nombre de libertés de la pierre non isolée (x,y) ?
 
 2. Quelle est la meilleure structure de données pour ce travail ?
+
 3. Faites une fonction qui permet facilement de saisir un problème.
+
 4. Écrivez un programme qui résout des problèmes simples de go.
+
 5. Écrivez un programme qui résout des problèmes de go.
 

@@ -34,4 +34,13 @@ Si non isolée de 1 pierre =
 
 Si enfermé = 0 lib 
 
+Création d'une fonction placer_pierre() pour placer une pierre sur le plateau à une position précise. 
+
+Création de pierre par enumeration. 
+
+Création du plateau de jeu creer() avec malloc de struct plateau + son size x et y. 
+
+
+
+
 
