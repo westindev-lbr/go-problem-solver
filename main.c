@@ -1,16 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct pierre{
-    char color;
-    int x;
-    int y;
-};
 
-typedef struct pierre pierre;
-typedef pierre * tabpierre;
+enum content {EMPTY, BLACK, WHITE};
+typedef enum content pierre;
+
+typedef pierre  * ptrpierre;
 struct tableau {
-  tabpierre t;
+  ptrpierre t;
   int col;
   int lig;
 } ;
@@ -21,7 +18,7 @@ plateau creer(int x, int y) {
   plateau tab;
   tab.col = y;
   tab.lig = x;
-  tab.t = (tabpierre) malloc ((size_t) (y * x * sizeof(pierre)));
+  tab.t = (ptrpierre) malloc ((size_t) (y * x * sizeof(pierre)));
   return tab;
 }
 
@@ -29,8 +26,6 @@ plateau creer(int x, int y) {
 void placer_pierre(plateau *tab, int i, int j, pierre p) {
   if (i < tab->lig && j < tab->col) {
     tab->t[(i * tab->col) + j] = p;
-    p.x=i;
-    p.y=j;
   }
 }
 
@@ -44,8 +39,7 @@ void voirtab(plateau *tab) {
   for (i = 0; i < tab->lig; i++) {
 	printf ("%d|", i);
 	for (j = 0; j < tab->col; j++) {
-	  //printf (" %2c ", tab->t->color);
-      printf (" %2c ", tab->t[i * tab->col + j].color);
+      printf (" %d ", tab->t[i * tab->col + j]);
 	}
 	printf("\n");
   }
@@ -61,11 +55,8 @@ int main (){
     tab = creer(sx, sy);
 
     /*création de pierre*/
-    pierre pn;
-    pn.color = 'N';
-
-    pierre pb;
-    pb.color = 'B';
+    pierre J1 = 1;
+    pierre J2 = 2;
 
     /*Pointeur vers tab*/
     plateau *ptr;
@@ -74,8 +65,8 @@ int main (){
     /*Test utilisation du pointeur*/
     voirtab(ptr);
     /*test placer une pierre */
-    placer_pierre(ptr,0,0,pb);
-    placer_pierre(ptr,0,1,pn);
+    placer_pierre(ptr,0,0,J1);
+    placer_pierre(ptr,0,1,J2);
     voirtab(ptr);
 
     return 0;    
