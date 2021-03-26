@@ -9,6 +9,16 @@ enum content
 };
 typedef enum content pierre;
 
+enum corner
+{
+	PC,
+	NO,
+	SE,
+	NE,
+	SO
+};
+typedef enum corner coin;
+
 typedef pierre *ptrpierre;
 
 struct tableau
@@ -57,16 +67,6 @@ void voirtab(plateau *tab)
 		printf("\n");
 	}
 }
-
-enum corner
-{
-	PC,
-	NO,
-	SE,
-	NE,
-	SO
-};
-typedef enum corner coin;
 
 int est_coin(plateau *tab, int x, int y)
 {
@@ -139,8 +139,8 @@ int est_isole(plateau *tab, int x, int y)
 	}
 	return 0;
 }
-//nombre de liberté de 1 seule pierre
 
+//nombre de liberté de 1 seule pierre
 int nb_liberte(plateau *tab, int x, int y)
 {
 	int nb = 0;
@@ -239,84 +239,132 @@ int nb_liberte(plateau *tab, int x, int y)
 	return nb;
 }
 
-int est_paire(plateau *tab, int x, int y, int x2, int y2) {
-	if(est_coin(tab, x, y)) {
-		if (x2 == x-1)
-			{
-				return 1;
-			}
-			if (x2 == x+1)
-			{
-				return 1;
-			}
-			if (y2 == y-1)
-			{
-				return 1;
-			}
-			if (y2 == y+1)
-			{
-				return 1;
-			}
-	}
-	return 0;
-}
 
-int est_triplet(plateau *tab, int x, int y, int x2, int y2, int x3, int y3) {
-	if(est_paire(tab, x, y, x2, y2)) {
-		if (est_paire(tab, x2, y2, x3, y3))
-			{
-				return 1;
-			}
-			
-	}
-	return 0;
-}
-
-
-int nb_liberte_paire(plateau *tab, int x, int y, int x2, int y2) {
-	if (est_paire(tab,x, y, x2, x2))
-	{
-		return nb_liberte(tab, x, y) + nb_liberte(tab, x2, y2);
-	}
-	return -1;	
-}
-
-int nb_liberte_triplet(plateau *tab, int x, int y, int x2, int y2, int x3, int y3) {
-	if (est_triplet(tab,x, y, x2, x2, x3, x3))
-	{
-		return nb_liberte(tab, x, y) + nb_liberte(tab, x2, y2) + nb_liberte(tab, x3, y3);
-	}
-	return -1;
-}
-
-int nb_liberte_paire2(plateau *tab, int x, int y)
+int est_paire(plateau *tab, int x, int y, int x2, int y2)
 {
 	int current = tab->t[x * tab->col + y];
 	int nord = tab->t[(x - 1) * tab->col + y];
 	int sud = tab->t[(x + 1) * tab->col + y];
 	int ouest = tab->t[x * tab->col + (y - 1)];
 	int est = tab->t[x * tab->col + (y + 1)];
-	int nb_liberte_current = nb_liberte(tab, x, y);
-	if (nord == current)
+	int c = est_coin(tab, x, y);
+	switch (c)
 	{
-		return nb_liberte_current + nb_liberte(tab, x - 1, y);
+	case NO:
+		if (sud == current)
+			return 1;
+		if (est == current)
+			return 1;
+		break;
+	case NE:
+		if (sud == current)
+			return 1;
+		if (ouest == current)
+			return 1;
+		break;
+	case SO:
+		if (nord == current)
+			return 1;
+		if (est == current)
+			return 1;
+		break;
+	case SE:
+		if (nord == current)
+			return 1;
+		if (ouest == current)
+			return 1;
+		break;
+	case PC:
+		if (x == 0)
+		{
+			if (sud == current)
+				return 1;
+			if (est == current)
+				return 1;
+			if (ouest == current)
+				return 1;
+		}
+		else if (x == tab->lig - 1)
+		{
+			if (est == current)
+				return 1;
+			if (nord == current)
+				return 1;
+			if (ouest == current)
+				return 1;
+		}
+		else if (y == 0)
+		{
+			if (sud == current)
+				return 1;
+			if (est == current)
+				return 1;
+			if (nord == current)
+				return 1;
+		}
+		else if (y == tab->col - 1)
+		{
+			if (sud == current)
+				return 1;
+			if (nord == current)
+				return 1;
+			if (ouest == current)
+				return 1;
+		}
+		else
+		{
+			if (x2 == x - 1)
+			{
+				return 1;
+			}
+			if (x2 == x + 1)
+			{
+				return 1;
+			}
+			if (y2 == y - 1)
+			{
+				return 1;
+			}
+			if (y2 == y + 1)
+			{
+				return 1;
+			}
+		}
 	}
-	if (sud == current)
+	return 0;
+}
+
+int nb_liberte_paire(plateau *tab, int x, int y, int x2, int y2)
+{
+	if (est_paire(tab, x, y, x2, x2))
 	{
-		return nb_liberte_current + nb_liberte(tab, x + 1, y);
-	}
-	if (ouest == current)
-	{
-		return nb_liberte_current + nb_liberte(tab, x, y - 1);
-	}
-	if (est == current)
-	{
-		return nb_liberte_current + nb_liberte(tab, x, y + 1);
+		return nb_liberte(tab, x, y) + nb_liberte(tab, x2, y2);
 	}
 	return -1;
 }
 
-//quel est le nombre de libertés de la paire de pierres (x,y), (x', y') ?
+
+/* Fonctionne seulement dans l'ordre croissant ou décroissant ! */
+int est_triplet(plateau *tab, int x, int y, int x2, int y2, int x3, int y3)
+{
+	if (est_paire(tab, x, y, x2, y2))
+	{
+		if (est_paire(tab, x2, y2, x3, y3))
+		{
+			return 1;
+		}
+	}
+	return 0;
+}
+/* Fonctionne seulement dans l'ordre croissant ou décroissant!*/
+int nb_liberte_triplet(plateau *tab, int x, int y, int x2, int y2, int x3, int y3)
+{
+	if (est_triplet(tab, x, y, x2, y2, x3, y3))
+	{
+		return nb_liberte(tab, x, y) + nb_liberte(tab, x2, y2) + nb_liberte(tab, x3, y3);
+	}
+	return -1;
+}
 
 
 int main()
@@ -340,8 +388,8 @@ int main()
 	voirtab(ptr);
 	/*test placer une pierre */
 	placer_pierre(ptr, 0, 0, pj1);
-	placer_pierre(ptr, 0, 1, pj1);
-	placer_pierre(ptr, 0, 5, pj2);
+	placer_pierre(ptr, 0, 3, pj1);
+	placer_pierre(ptr, 0, 5, pj1);
 	placer_pierre(ptr, 0, 4, pj1);
 	placer_pierre(ptr, 3, 3, pj2);
 	placer_pierre(ptr, 3, 4, pj2);
@@ -350,8 +398,10 @@ int main()
 	printf(" la pierre est dans le coin : %d \n", est_coin(ptr, 5, 5));
 	printf(" la pierre est isole : %d \n", est_isole(ptr, 5, 5));
 	printf(" le nombre de liberté est : %d \n", nb_liberte(ptr, 0, 0));
-	printf(" le nombre de liberte d'une paire : %d \n", nb_liberte_paire(ptr, 0, 0, 0, 1));
-	printf(" Savoir si c'est une paire %d \n", est_paire(ptr, 3, 3, 3, 4));
+	printf(" le nombre de liberte d'une paire : %d \n", nb_liberte_paire(ptr, 0, 5, 0, 4));
+	printf(" Savoir si c'est une paire %d \n", est_paire(ptr, 0, 5, 0, 4));
+	printf(" le nombre de liberte d'un triplet : %d \n", nb_liberte_triplet(ptr,0,5,0,4,0,3));
+	printf(" Savoir si c'est un triplet %d \n", est_triplet(ptr,0,5,0,4,0,3));
 
 	return 0;
 }
