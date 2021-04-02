@@ -84,6 +84,12 @@ int est_coin(plateau *tab, int x, int y)
 
 int est_isole(plateau *tab, int x, int y)
 {
+	if ( x >= 0 && x <= 35){ 
+		if (x == 0 )
+	}
+	// int nord = tab->t[SIZE = 36];
+	// int nord = tab->t[i][j];
+	//int coord = x* tab->col + y;
 	int nord = tab->t[(x - 1) * tab->col + y];
 	int sud = tab->t[(x + 1) * tab->col + y];
 	int ouest = tab->t[x * tab->col + (y - 1)];
@@ -402,7 +408,7 @@ int main()
 	printf(" Savoir si c'est une paire %d \n", est_paire(ptr, 0, 5, 0, 4));
 	printf(" le nombre de liberte d'un triplet : %d \n", nb_liberte_triplet(ptr,0,5,0,4,0,3));
 	printf(" Savoir si c'est un triplet %d \n", est_triplet(ptr,0,5,0,4,0,3));
-
+	free(ptr);
 	return 0;
 }
 // gcc -Wall -Wextra -Wpedantic
