@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-//gcc -wall -Wextra -wpedentic
+
 enum content
 {
 	EMPTY,
@@ -84,9 +84,6 @@ int est_coin(plateau *tab, int x, int y)
 
 int est_isole(plateau *tab, int x, int y)
 {
-	if ( x >= 0 && x <= 35){ 
-		if (x == 0 )
-	}
 	// int nord = tab->t[SIZE = 36];
 	// int nord = tab->t[i][j];
 	//int coord = x* tab->col + y;
@@ -245,7 +242,6 @@ int nb_liberte(plateau *tab, int x, int y)
 	return nb;
 }
 
-
 int est_paire(plateau *tab, int x, int y, int x2, int y2)
 {
 	int current = tab->t[x * tab->col + y];
@@ -349,7 +345,6 @@ int nb_liberte_paire(plateau *tab, int x, int y, int x2, int y2)
 	return -1;
 }
 
-
 /* Fonctionne seulement dans l'ordre croissant ou décroissant ! */
 int est_triplet(plateau *tab, int x, int y, int x2, int y2, int x3, int y3)
 {
@@ -372,6 +367,113 @@ int nb_liberte_triplet(plateau *tab, int x, int y, int x2, int y2, int x3, int y
 	return -1;
 }
 
+
+void ft_marquage(plateau *tab, int x, int y, pierre j, int m)
+{
+	if (j == 1)
+	{
+		m = 11;
+	}
+	if (j == 2)
+	{
+		m = 12;
+	}
+	if (j == tab->t[x * tab->col + y])
+	{
+		ft_marquage(tab, x - 1, y, j, tab->t[x * tab->col + y] = m);
+		ft_marquage(tab, x + 1, y, j, tab->t[x * tab->col + y] = m);
+		ft_marquage(tab, x, y + 1, j, tab->t[x * tab->col + y] = m);
+		ft_marquage(tab, x, y - 1, j, tab->t[x * tab->col + y] = m);
+	}
+}
+
+void marquage(plateau *tab, int x, int y, pierre j)
+{
+	ft_marquage(tab, x, y, j, 0);
+}
+
+void opp_visiter(plateau *tab, int x, int y)
+{
+	int pierre = tab->t[x * tab->col + y];
+	int nord = tab->t[(x - 1) * tab->col + y];
+	int sud = tab->t[(x + 1) * tab->col + y];
+	int ouest = tab->t[x * tab->col + (y - 1)];
+	int est = tab->t[x * tab->col + (y + 1)];
+	if (nord != pierre && nord > 0)
+	{
+		marquage(tab, x - 1, y, nord);
+	}
+	if (est != pierre && est > 0)
+	{
+		marquage(tab, x, y+1, est);
+	}
+	if (sud != pierre && sud > 0)
+	{
+		marquage(tab, x + 1, y, sud);
+	}
+	if (ouest != pierre && ouest > 0)
+	{
+		marquage(tab, x, y-1, ouest);
+	}
+}
+
+
+/* A revoir 
+void marq_visiter(plateau *tab, int x, int y)
+{
+	//int pierre = tab->t[x * tab->col + y];
+	int nord = tab->t[(x - 1) * tab->col + y];
+	int sud = tab->t[(x + 1) * tab->col + y];
+	int ouest = tab->t[x * tab->col + (y - 1)];
+	int est = tab->t[x * tab->col + (y + 1)];
+	if (nord == 0)
+	{
+		tab->t[(x - 1) + y] = 20;
+	}
+	if (est == 0)
+	{
+		tab->t[x + (y + 1)] = 20;
+	}
+	if (sud == 0)
+	{
+		printf("ici \n");
+		tab->t[(x + 1) + y] = 20;
+	}
+	if (ouest == 0)
+	{
+		tab->t[x + (y - 1)] = 20;
+	}
+}
+*/
+/* A revoir
+int somme_liberte(plateau *tab)
+{
+	int resj1, resj2, i, j;
+	resj1 = 0;
+	resj2 = 0;
+	for (i = 0; i < tab->col; i++)
+	{
+		for (j = 0; j < tab->col; j++)
+		{
+			if (tab->t[i * tab->col + j] == 10)
+			{
+				resj1 ++;
+			}
+			else if (tab->t[i * tab->col + j] == 12)
+			{
+				resj2 += nb_liberte(tab, i, j);
+				printf("%d \n", resj2);
+			}
+		}
+	}
+	if (resj1 > 0)
+		return resj1;
+	else if (resj2 > 0)
+		return resj2;
+	else
+		return 0;
+}
+*/
 
 int main()
 {
@@ -396,9 +498,13 @@ int main()
 	placer_pierre(ptr, 0, 0, pj1);
 	placer_pierre(ptr, 0, 3, pj1);
 	placer_pierre(ptr, 0, 5, pj1);
+	placer_pierre(ptr, 1, 5, pj2);
+	placer_pierre(ptr, 2, 5, pj2);
+	placer_pierre(ptr, 3, 5, pj2);
 	placer_pierre(ptr, 0, 4, pj1);
 	placer_pierre(ptr, 3, 3, pj2);
 	placer_pierre(ptr, 3, 4, pj2);
+
 	voirtab(ptr);
 	printf(" 0:PC , 1:NO , 2:SE, 3:NE, 4:SO \n");
 	printf(" la pierre est dans le coin : %d \n", est_coin(ptr, 5, 5));
@@ -406,9 +512,15 @@ int main()
 	printf(" le nombre de liberté est : %d \n", nb_liberte(ptr, 0, 0));
 	printf(" le nombre de liberte d'une paire : %d \n", nb_liberte_paire(ptr, 0, 5, 0, 4));
 	printf(" Savoir si c'est une paire %d \n", est_paire(ptr, 0, 5, 0, 4));
-	printf(" le nombre de liberte d'un triplet : %d \n", nb_liberte_triplet(ptr,0,5,0,4,0,3));
-	printf(" Savoir si c'est un triplet %d \n", est_triplet(ptr,0,5,0,4,0,3));
-	free(ptr);
+	printf(" le nombre de liberte d'un triplet : %d \n", nb_liberte_triplet(ptr, 0, 5, 0, 4, 0, 3));
+	printf(" Savoir si c'est un triplet %d \n", est_triplet(ptr, 0, 5, 0, 4, 0, 3));
+	
+	opp_visiter(ptr,0,5);
+	marquage(ptr, 0, 0, 1);
+	voirtab(ptr);
+	printf("nb lib du groupe de la pierre placée vaut : %d \n", somme_liberte(ptr));
+
+
 	return 0;
 }
 // gcc -Wall -Wextra -Wpedantic
