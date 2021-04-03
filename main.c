@@ -29,6 +29,13 @@ struct tableau
 };
 typedef struct tableau plateau;
 
+typedef enum{
+	PROB1 = 1,
+	PROB2,
+	PROB3,
+}prob;
+
+
 /*Création d'un plateau*/
 plateau creer(int x, int y)
 {
@@ -65,6 +72,7 @@ void voirtab(plateau *tab)
 	}
 }
 
+/*Savoir si une pierre est dans un coin*/
 int est_coin(plateau *tab, int x, int y)
 {
 
@@ -79,6 +87,7 @@ int est_coin(plateau *tab, int x, int y)
 	return PC;
 }
 
+/*savoir si un pierre est isolée*/
 int est_isole(plateau *tab, int x, int y)
 {
 	// int nord = tab->t[SIZE = 36];
@@ -239,6 +248,7 @@ int nb_liberte(plateau *tab, int x, int y)
 	return nb;
 }
 
+
 int est_paire(plateau *tab, int x, int y, int x2, int y2)
 {
 	int current = tab->t[x * tab->col + y];
@@ -364,27 +374,8 @@ int nb_liberte_triplet(plateau *tab, int x, int y, int x2, int y2, int x3, int y
 	return -1;
 }
 
-/*
-void ft_marquage(plateau *tab, int x, int y, pierre j, int m)
-{
-	if (j == 1)
-	{
-		m = 11;
-	}
-	if (j == 2)
-	{
-		m = 12;
-	}
-	if (j == tab->t[x * tab->col + y])
-	{
-		ft_marquage(tab, x - 1, y, j, tab->t[x * tab->col + y] = m);
-		ft_marquage(tab, x + 1, y, j, tab->t[x * tab->col + y] = m);
-		ft_marquage(tab, x, y + 1, j, tab->t[x * tab->col + y] = m);
-		ft_marquage(tab, x, y - 1, j, tab->t[x * tab->col + y] = m);
-	}
-}
-*/
 
+/* Marquage groupe pierre placé */
 void ft_marquage(plateau *tab, int x, int y, pierre j, int m)
 {
 	if (j == 0)
@@ -406,11 +397,13 @@ void ft_marquage(plateau *tab, int x, int y, pierre j, int m)
 	}
 }
 
+/* appel de ft_marquage */
 void marquage(plateau *tab, int x, int y, pierre j)
 {
 	ft_marquage(tab, x, y, j, 0);
 }
 
+/* marquage du groupe de pierre opposée adjacente a la pierre placée */
 void opp_visiter(plateau *tab, int x, int y)
 {
 	if (tab->t[x * tab->col + y] == 0)
@@ -441,6 +434,7 @@ void opp_visiter(plateau *tab, int x, int y)
 	}
 }
 
+/*Marquage libertés groupe de la pierre j*/
 void marq_case_vide(plateau *tab, pierre j)
 {
 	int x, y = 0;
@@ -476,6 +470,7 @@ void marq_case_vide(plateau *tab, pierre j)
 	}
 }
 
+/* somme liberté du groupe de la pierre j */
 int somme_liberte(plateau *tab, pierre j)
 {
 	int res, x, y;
@@ -494,6 +489,7 @@ int somme_liberte(plateau *tab, pierre j)
 	return res;
 }
 
+/* Supprimmer un groupe entouré */
 void eliminer(plateau *tab, pierre j)
 {
 	int x, y;
@@ -512,6 +508,7 @@ void eliminer(plateau *tab, pierre j)
 	}
 }
 
+/*reset du tableau pour fin du tour*/
 void remise_a_zero(plateau *tab)
 {
 
@@ -537,6 +534,7 @@ void remise_a_zero(plateau *tab)
 	}
 }
 
+/*Saisir un problème manuellement */
 void saisir_probleme(plateau *tab)
 {
 	char reponse;
@@ -598,6 +596,24 @@ void saisir_probleme(plateau *tab)
 	}
 }
 
+
+
+/* Sélectionner un problème de Go */
+void choix_probleme(void){
+	int choix_tmp = 1;
+	prob choix; 
+
+	printf("Veuillez choisir un problème : \n");
+	printf("1-Probleme 1\n");
+	printf("2-Probleme 2\n");
+	printf("3-Probleme 3\n");
+
+	scanf("%d", &choix_tmp);
+	choix = (prob)choix_tmp;
+
+}
+
+
 int main()
 {
 	/*déclaration plateau de jeu*/
@@ -615,22 +631,6 @@ int main()
 	plateau *ptr;
 	ptr = &tab;
 
-	/*test placer une pierre */
-	/*
-	placer_pierre(ptr, 0, 0, pj1);
-	placer_pierre(ptr, 0, 1, pj2);
-	placer_pierre(ptr, 1, 0, pj2);
-	placer_pierre(ptr, 2, 3, pj1);
-	placer_pierre(ptr, 4, 1, pj1);
-	placer_pierre(ptr, 4, 3, pj1);
-	placer_pierre(ptr, 3, 0, pj1);
-	placer_pierre(ptr, 3, 1, pj2);
-	placer_pierre(ptr, 3, 2, pj2);
-	placer_pierre(ptr, 2, 2, pj2);
-	placer_pierre(ptr, 4, 2, pj2);
-	placer_pierre(ptr, 3, 3, pj2);
-	placer_pierre(ptr, 3, 4, pj1);
-	*/
 	/* Tableau de jeu init */
 	//voirtab(ptr);
 	// printf(" 0:PC , 1:NO , 2:SE, 3:NE, 4:SO \n");
