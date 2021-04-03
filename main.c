@@ -52,17 +52,14 @@ void placer_pierre(plateau *tab, int i, int j, pierre p)
 void voirtab(plateau *tab)
 {
 	int i, j;
-	for (j = 0; j < tab->col; j++)
-	{
-		printf(" %2d ", j);
-	}
-	printf("\n");
+	printf("     A    B    C    D    E    F\n");
+	printf("  =============================\n");
 	for (i = 0; i < tab->lig; i++)
 	{
-		printf("%d|", i);
+		printf("%d||", i);
 		for (j = 0; j < tab->col; j++)
 		{
-			printf(" %d ", tab->t[i * tab->col + j]);
+			printf("  %d  ", tab->t[i * tab->col + j]);
 		}
 		printf("\n");
 	}
@@ -388,7 +385,6 @@ void ft_marquage(plateau *tab, int x, int y, pierre j, int m)
 }
 */
 
-
 void ft_marquage(plateau *tab, int x, int y, pierre j, int m)
 {
 	if (j == 0)
@@ -407,7 +403,6 @@ void ft_marquage(plateau *tab, int x, int y, pierre j, int m)
 		m = 0;
 		ft_marquage(tab, x, y - 1, j, tab->t[x * tab->col + y] += m);
 		m = 0;
-		
 	}
 }
 
@@ -416,10 +411,9 @@ void marquage(plateau *tab, int x, int y, pierre j)
 	ft_marquage(tab, x, y, j, 0);
 }
 
-
 void opp_visiter(plateau *tab, int x, int y)
 {
-	if (tab->t[x * tab->col + y] == 0) 
+	if (tab->t[x * tab->col + y] == 0)
 	{
 		printf(" \n Impossible sur une case vide (0) \n");
 		return;
@@ -435,7 +429,7 @@ void opp_visiter(plateau *tab, int x, int y)
 	}
 	if (est != pierre && est > 0)
 	{
-		marquage(tab, x, y+1, est);
+		marquage(tab, x, y + 1, est);
 	}
 	if (sud != pierre && sud > 0)
 	{
@@ -443,69 +437,106 @@ void opp_visiter(plateau *tab, int x, int y)
 	}
 	if (ouest != pierre && ouest > 0)
 	{
-		marquage(tab, x, y-1, ouest);
+		marquage(tab, x, y - 1, ouest);
 	}
 }
 
-
-/* A revoir 
-void marq_visiter(plateau *tab, int x, int y)
+void marq_case_vide(plateau *tab, pierre j)
 {
+	int x, y = 0;
 	//int pierre = tab->t[x * tab->col + y];
-	int nord = tab->t[(x - 1) * tab->col + y];
-	int sud = tab->t[(x + 1) * tab->col + y];
-	int ouest = tab->t[x * tab->col + (y - 1)];
-	int est = tab->t[x * tab->col + (y + 1)];
-	if (nord == 0)
+	// int nord = tab->t[(x - 1) * tab->col + y];
+	// int sud = tab->t[(x + 1) * tab->col + y];
+	// int ouest = tab->t[x * tab->col + (y - 1)];
+	// int est = tab->t[x * tab->col + (y + 1)];
+	for (x = 0; x < tab->col; x++)
 	{
-		tab->t[(x - 1) + y] = 20;
-	}
-	if (est == 0)
-	{
-		tab->t[x + (y + 1)] = 20;
-	}
-	if (sud == 0)
-	{
-		printf("ici \n");
-		tab->t[(x + 1) + y] = 20;
-	}
-	if (ouest == 0)
-	{
-		tab->t[x + (y - 1)] = 20;
-	}
-}
-*/
-
-
-/* A revoir
-int somme_liberte(plateau *tab)
-{
-	int resj1, resj2, i, j;
-	resj1 = 0;
-	resj2 = 0;
-	for (i = 0; i < tab->col; i++)
-	{
-		for (j = 0; j < tab->col; j++)
+		for (y = 0; y < tab->col; y++)
 		{
-			if (tab->t[i * tab->col + j] == 10)
+			if (tab->t[x * tab->col + y] == j)
 			{
-				resj1 ++;
-			}
-			else if (tab->t[i * tab->col + j] == 12)
-			{
-				resj2 += nb_liberte(tab, i, j);
-				printf("%d \n", resj2);
+				if (tab->t[(x - 1) * tab->col + y] == 0 && x > 1)
+				{
+					tab->t[(x - 1) * tab->col + y] = 10;
+				}
+				if (tab->t[x * tab->col + (y + 1)] == 0 && y < 5)
+				{
+					tab->t[x * tab->col + (y + 1)] = 10;
+				}
+				if (tab->t[(x + 1) * tab->col + y] == 0 && x < 5)
+				{
+					tab->t[(x + 1) * tab->col + y] = 10;
+				}
+				if (tab->t[x * tab->col + (y - 1)] == 0 && y > 1)
+				{
+					tab->t[x * tab->col + (y - 1)] = 10;
+				}
 			}
 		}
 	}
-	if (resj1 > 0)
-		return resj1;
-	else if (resj2 > 0)
-		return resj2;
-	else
-		return 0;
 }
-*/
+
+int somme_liberte(plateau *tab,pierre j)
+{
+	int res, x, y;
+	res = 0;
+	marq_case_vide(tab,j);
+	for (x = 0; x < tab->col; x++)
+	{
+		for (y = 0; y < tab->col; y++)
+		{
+			if (tab->t[x * tab->col + y] == 10)
+			{
+				res++;
+			}
+		}
+	}
+	return res;
+}
+
+void eliminer(plateau *tab, pierre j)
+{
+	int x,y;
+	if (somme_liberte(tab,j) == 0)
+	{
+		for (x = 0; x < tab->col; x++)
+		{
+			for (y = 0; y < tab->col; y++)
+			{
+				if (tab->t[x * tab->col + y] == j)
+				{
+					tab->t[x * tab->col + y] = 0;	
+				}
+			}
+		}
+	}
+}
+
+void remise_a_zero(plateau *tab){
+
+	int x,y;
+	for (x = 0; x < tab->col; x++)
+	{
+		for (y = 0; y < tab->col; y++)
+		{
+			if (tab->t[x * tab->col + y] == 11)
+			{
+				tab->t[x * tab->col + y] = 1;	
+			}
+			else if (tab->t[x * tab->col + y] == 12)
+			{
+				tab->t[x * tab->col + y] = 2;	
+			}
+			else 
+			{
+				if (tab->t[x * tab->col + y] == 10)
+					tab->t[x * tab->col + y] = 0;	
+			}
+		}
+	}
+}
+
+
 
 int main()
 {
@@ -524,33 +555,41 @@ int main()
 	plateau *ptr;
 	ptr = &tab;
 
-	/*Test utilisation du pointeur*/
-	voirtab(ptr);
 	/*test placer une pierre */
 	placer_pierre(ptr, 0, 0, pj1);
-	placer_pierre(ptr, 0, 3, pj1);
-	placer_pierre(ptr, 0, 5, pj1);
-	placer_pierre(ptr, 1, 5, pj2);
-	placer_pierre(ptr, 2, 5, pj2);
-	placer_pierre(ptr, 3, 5, pj2);
-	placer_pierre(ptr, 0, 4, pj1);
+	placer_pierre(ptr, 0, 1, pj2);
+	placer_pierre(ptr, 1, 0, pj2);
+	placer_pierre(ptr, 2, 3, pj1);
+	placer_pierre(ptr, 4, 1, pj1);
+	placer_pierre(ptr, 4, 3, pj1);
+	placer_pierre(ptr, 3, 0, pj1);
+	placer_pierre(ptr, 3, 1, pj2);
+	placer_pierre(ptr, 3, 2, pj2);
+	placer_pierre(ptr, 2, 2, pj2);
+	placer_pierre(ptr, 4, 2, pj2);
 	placer_pierre(ptr, 3, 3, pj2);
-	placer_pierre(ptr, 3, 4, pj2);
+	placer_pierre(ptr, 3, 4, pj1);
+	/* Tableau de jeu init */
+	voirtab(ptr);
+	// printf(" 0:PC , 1:NO , 2:SE, 3:NE, 4:SO \n");
+	// printf(" la pierre est dans le coin : %d \n", est_coin(ptr, 5, 5));
+	// printf(" la pierre est isole : %d \n", est_isole(ptr, 5, 5));
+	// printf(" le nombre de liberté est : %d \n", nb_liberte(ptr, 0, 0));
+	// printf(" le nombre de liberte d'une paire : %d \n", nb_liberte_paire(ptr, 0, 5, 0, 4));
+	// printf(" Savoir si c'est une paire %d \n", est_paire(ptr, 0, 5, 0, 4));
+	// printf(" le nombre de liberte d'un triplet : %d \n", nb_liberte_triplet(ptr, 0, 5, 0, 4, 0, 3));
+	// printf(" Savoir si c'est un triplet %d \n", est_triplet(ptr, 0, 5, 0, 4, 0, 3));
 
+	//opp_visiter(ptr,0,1);
+
+	marquage(ptr, 3, 2, 2);
+
+	//eliminer(ptr,11);
+	printf("nb lib du groupe de la pierre placée vaut : %d \n", somme_liberte(ptr,12));
 	voirtab(ptr);
-	printf(" 0:PC , 1:NO , 2:SE, 3:NE, 4:SO \n");
-	printf(" la pierre est dans le coin : %d \n", est_coin(ptr, 5, 5));
-	printf(" la pierre est isole : %d \n", est_isole(ptr, 5, 5));
-	printf(" le nombre de liberté est : %d \n", nb_liberte(ptr, 0, 0));
-	printf(" le nombre de liberte d'une paire : %d \n", nb_liberte_paire(ptr, 0, 5, 0, 4));
-	printf(" Savoir si c'est une paire %d \n", est_paire(ptr, 0, 5, 0, 4));
-	printf(" le nombre de liberte d'un triplet : %d \n", nb_liberte_triplet(ptr, 0, 5, 0, 4, 0, 3));
-	printf(" Savoir si c'est un triplet %d \n", est_triplet(ptr, 0, 5, 0, 4, 0, 3));
-	
-	opp_visiter(ptr,0,1);
-	//marquage(ptr, 3, 5, 2);
+	printf("\n");
+	remise_a_zero(ptr);
 	voirtab(ptr);
-	//printf("nb lib du groupe de la pierre placée vaut : %d \n", somme_liberte(ptr));
 
 
 	return 0;
