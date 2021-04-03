@@ -367,7 +367,7 @@ int nb_liberte_triplet(plateau *tab, int x, int y, int x2, int y2, int x3, int y
 	return -1;
 }
 
-
+/*
 void ft_marquage(plateau *tab, int x, int y, pierre j, int m)
 {
 	if (j == 1)
@@ -386,14 +386,44 @@ void ft_marquage(plateau *tab, int x, int y, pierre j, int m)
 		ft_marquage(tab, x, y - 1, j, tab->t[x * tab->col + y] = m);
 	}
 }
+*/
+
+
+void ft_marquage(plateau *tab, int x, int y, pierre j, int m)
+{
+	if (j == 0)
+	{
+		printf(" \n Il n'y a pas de pierre placer ici ! \n");
+		return;
+	}
+	m = 10;
+	if (j == tab->t[x * tab->col + y])
+	{
+		ft_marquage(tab, x - 1, y, j, tab->t[x * tab->col + y] += m);
+		m = 0;
+		ft_marquage(tab, x + 1, y, j, tab->t[x * tab->col + y] += m);
+		m = 0;
+		ft_marquage(tab, x, y + 1, j, tab->t[x * tab->col + y] += m);
+		m = 0;
+		ft_marquage(tab, x, y - 1, j, tab->t[x * tab->col + y] += m);
+		m = 0;
+		
+	}
+}
 
 void marquage(plateau *tab, int x, int y, pierre j)
 {
 	ft_marquage(tab, x, y, j, 0);
 }
 
+
 void opp_visiter(plateau *tab, int x, int y)
 {
+	if (tab->t[x * tab->col + y] == 0) 
+	{
+		printf(" \n Impossible sur une case vide (0) \n");
+		return;
+	}
 	int pierre = tab->t[x * tab->col + y];
 	int nord = tab->t[(x - 1) * tab->col + y];
 	int sud = tab->t[(x + 1) * tab->col + y];
@@ -445,6 +475,8 @@ void marq_visiter(plateau *tab, int x, int y)
 	}
 }
 */
+
+
 /* A revoir
 int somme_liberte(plateau *tab)
 {
@@ -515,10 +547,10 @@ int main()
 	printf(" le nombre de liberte d'un triplet : %d \n", nb_liberte_triplet(ptr, 0, 5, 0, 4, 0, 3));
 	printf(" Savoir si c'est un triplet %d \n", est_triplet(ptr, 0, 5, 0, 4, 0, 3));
 	
-	opp_visiter(ptr,0,5);
-	marquage(ptr, 0, 0, 1);
+	opp_visiter(ptr,0,1);
+	//marquage(ptr, 3, 5, 2);
 	voirtab(ptr);
-	printf("nb lib du groupe de la pierre placée vaut : %d \n", somme_liberte(ptr));
+	//printf("nb lib du groupe de la pierre placée vaut : %d \n", somme_liberte(ptr));
 
 
 	return 0;
