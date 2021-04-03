@@ -536,7 +536,51 @@ void remise_a_zero(plateau *tab){
 	}
 }
 
+void saisir_probleme(plateau *tab)
+{
+	char reponse;
+	pierre p = 0;
+	int x, y;
+	int fin = 1;
+	printf("Veuillez saisir un problème en plaçant des pierres (\"BLACK\" ou \"WHITE\") sur le plateau de jeu : \n");
+	while (fin != 0)
+	{
+		voirtab(tab);
+		printf("Vous voulez placer une pierre \"BLACK\" ou \"WHITE\" ? \n");
+		scanf( "%d : \"BLACK\" ou \"WHITE\" ", p);
+		if(p != BLACK || p != WHITE) 
+		{
+			printf("Veuillez écrire la couleur de la pierre choisit corretement, merci");
+		}else{
+			if(p == BLACK) {
+				printf("Vous avez choisit une pierre de la couleur : BLACK \n");
+			}
+			if(p == WHITE)
+			{
+				printf("Vous avez choisit une pierre de la couleur : WHITE \n");
 
+			}
+			re_saisir_coord:
+			printf("Indiquer maintenant les coordonnées de la pierre sur le plateau");
+			scanf( "Pierre : [x = %d, y = %d] \n", x, y);
+			if(x>=0 && x<=tab->lig && y>=0 && y<=tab->col) {
+				placer_pierre(tab, x, y, p);
+			}else {
+				printf("ATTENTION, vous ne pouvez pas placer de pierre ici : [x = %d, y = %d] \n", x, y);
+				goto re_saisir_coord;
+			}
+			printf("Pierre suivante ? \n");
+			scanf("(o / n) \n", reponse);
+			if (reponse == "n")
+			{
+				return;
+				voirtab(tab);
+			}
+		}
+	}
+	
+	
+}
 
 int main()
 {
@@ -556,6 +600,7 @@ int main()
 	ptr = &tab;
 
 	/*test placer une pierre */
+	/*
 	placer_pierre(ptr, 0, 0, pj1);
 	placer_pierre(ptr, 0, 1, pj2);
 	placer_pierre(ptr, 1, 0, pj2);
@@ -569,6 +614,7 @@ int main()
 	placer_pierre(ptr, 4, 2, pj2);
 	placer_pierre(ptr, 3, 3, pj2);
 	placer_pierre(ptr, 3, 4, pj1);
+	*/
 	/* Tableau de jeu init */
 	voirtab(ptr);
 	// printf(" 0:PC , 1:NO , 2:SE, 3:NE, 4:SO \n");
@@ -583,7 +629,7 @@ int main()
 	//opp_visiter(ptr,0,1);
 
 	marquage(ptr, 3, 2, 2);
-
+	saisir_probleme(ptr);
 	//eliminer(ptr,11);
 	printf("nb lib du groupe de la pierre placée vaut : %d \n", somme_liberte(ptr,12));
 	voirtab(ptr);
