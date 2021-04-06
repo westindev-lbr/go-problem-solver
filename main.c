@@ -35,6 +35,11 @@ typedef enum{
 	PROB3,
 }prob;
 
+#define actuel tab->t[x * tab->col + y]
+#define	nord tab->t[(x - 1) * tab->col + y]
+#define	sud tab->t[(x + 1) * tab->col + y]
+#define	ouest tab->t[x * tab->col + (y - 1)]
+#define	est tab->t[x * tab->col + (y + 1)]
 
 /*Création d'un plateau*/
 plateau creer(int x, int y)
@@ -47,26 +52,26 @@ plateau creer(int x, int y)
 }
 
 /*fonction placer une pierre*/
-void placer_pierre(plateau *tab, int i, int j, pierre p)
+void placer_pierre(plateau *tab, int x, int y, pierre p)
 {
-	if (i < tab->lig && j < tab->col)
+	if (x < tab->lig && y < tab->col)
 	{
-		tab->t[(i * tab->col) + j] = p;
+		actuel = p;
 	}
 }
 
 /*fonction affiche tableau */
 void voirtab(plateau *tab)
 {
-	int i, j;
+	int x, y;
 	printf("     A    B    C    D    E    F\n");
 	printf("  =============================\n");
-	for (i = 0; i < tab->lig; i++)
+	for (x = 0; x < tab->lig; x++)
 	{
-		printf("%d||", i);
-		for (j = 0; j < tab->col; j++)
+		printf("%d||", x);
+		for (y = 0; y < tab->col; y++)
 		{
-			printf("  %d  ", tab->t[i * tab->col + j]);
+			printf("  %d  ", actuel);
 		}
 		printf("\n");
 	}
@@ -93,10 +98,10 @@ int est_isole(plateau *tab, int x, int y)
 	// int nord = tab->t[SIZE = 36];
 	// int nord = tab->t[i][j];
 	//int coord = x* tab->col + y;
-	int nord = tab->t[(x - 1) * tab->col + y];
-	int sud = tab->t[(x + 1) * tab->col + y];
-	int ouest = tab->t[x * tab->col + (y - 1)];
-	int est = tab->t[x * tab->col + (y + 1)];
+	if(actuel == 0) {
+		puts("Il n'y a pas de pierre placer ici !");
+		return -1;
+	}
 	int c = est_coin(tab, x, y);
 	printf("%d %d %d %d \n", nord, sud, ouest, est);
 	switch (c)
@@ -149,14 +154,10 @@ int est_isole(plateau *tab, int x, int y)
 	return 0;
 }
 
-//nombre de liberté de 1 seule pierre
+/* nombre de liberté de 1 seule pierre */
 int nb_liberte(plateau *tab, int x, int y)
 {
 	int nb = 0;
-	int nord = tab->t[(x - 1) * tab->col + y];
-	int sud = tab->t[(x + 1) * tab->col + y];
-	int ouest = tab->t[x * tab->col + (y - 1)];
-	int est = tab->t[x * tab->col + (y + 1)];
 	int c = est_coin(tab, x, y);
 	switch (c)
 	{
@@ -248,76 +249,71 @@ int nb_liberte(plateau *tab, int x, int y)
 	return nb;
 }
 
-
+/* Si le pierre est à coté d'une seule autre pierre de la même couleur retourne 1 */
 int est_paire(plateau *tab, int x, int y, int x2, int y2)
 {
-	int current = tab->t[x * tab->col + y];
-	int nord = tab->t[(x - 1) * tab->col + y];
-	int sud = tab->t[(x + 1) * tab->col + y];
-	int ouest = tab->t[x * tab->col + (y - 1)];
-	int est = tab->t[x * tab->col + (y + 1)];
 	int c = est_coin(tab, x, y);
 	switch (c)
 	{
 	case NO:
-		if (sud == current)
+		if (sud == actuel)
 			return 1;
-		if (est == current)
+		if (est == actuel)
 			return 1;
 		break;
 	case NE:
-		if (sud == current)
+		if (sud == actuel)
 			return 1;
-		if (ouest == current)
+		if (ouest == actuel)
 			return 1;
 		break;
 	case SO:
-		if (nord == current)
+		if (nord == actuel)
 			return 1;
-		if (est == current)
+		if (est == actuel)
 			return 1;
 		break;
 	case SE:
-		if (nord == current)
+		if (nord == actuel)
 			return 1;
-		if (ouest == current)
+		if (ouest == actuel)
 			return 1;
 		break;
 	case PC:
 		if (x == 0)
 		{
-			if (sud == current)
+			if (sud == actuel)
 				return 1;
-			if (est == current)
+			if (est == actuel)
 				return 1;
-			if (ouest == current)
+			if (ouest == actuel)
 				return 1;
 		}
 		else if (x == tab->lig - 1)
 		{
-			if (est == current)
+			if (est == actuel)
 				return 1;
-			if (nord == current)
+			if (nord == actuel)
 				return 1;
-			if (ouest == current)
+			if (ouest == actuel)
 				return 1;
 		}
 		else if (y == 0)
 		{
-			if (sud == current)
+			if (sud == actuel)
 				return 1;
-			if (est == current)
+			if (est == actuel)
 				return 1;
-			if (nord == current)
+			if (nord == actuel)
 				return 1;
 		}
 		else if (y == tab->col - 1)
 		{
-			if (sud == current)
+			if (sud == actuel)
 				return 1;
-			if (nord == current)
+			if (nord == actuel)
 				return 1;
-			if (ouest == current)
+			if (ouest == actuel)
 				return 1;
 		}
 		else
@@ -343,6 +339,7 @@ int est_paire(plateau *tab, int x, int y, int x2, int y2)
 	return 0;
 }
 
+/* Le nombre de liberté de la paire de pierre */
 int nb_liberte_paire(plateau *tab, int x, int y, int x2, int y2)
 {
 	if (est_paire(tab, x, y, x2, x2))
@@ -384,15 +381,15 @@ void ft_marquage(plateau *tab, int x, int y, pierre j, int m)
 		return;
 	}
 	m = 10;
-	if (j == tab->t[x * tab->col + y])
+	if (j == actuel)
 	{
-		ft_marquage(tab, x - 1, y, j, tab->t[x * tab->col + y] += m);
+		ft_marquage(tab, x - 1, y, j, actuel += m);
 		m = 0;
-		ft_marquage(tab, x + 1, y, j, tab->t[x * tab->col + y] += m);
+		ft_marquage(tab, x + 1, y, j, actuel += m);
 		m = 0;
-		ft_marquage(tab, x, y + 1, j, tab->t[x * tab->col + y] += m);
+		ft_marquage(tab, x, y + 1, j, actuel += m);
 		m = 0;
-		ft_marquage(tab, x, y - 1, j, tab->t[x * tab->col + y] += m);
+		ft_marquage(tab, x, y - 1, j, actuel += m);
 		m = 0;
 	}
 }
@@ -406,29 +403,24 @@ void marquage(plateau *tab, int x, int y, pierre j)
 /* marquage du groupe de pierre opposée adjacente a la pierre placée */
 void opp_visiter(plateau *tab, int x, int y)
 {
-	if (tab->t[x * tab->col + y] == 0)
+	if (actuel == 0)
 	{
 		printf(" \n Impossible sur une case vide (0) \n");
 		return;
 	}
-	int pierre = tab->t[x * tab->col + y];
-	int nord = tab->t[(x - 1) * tab->col + y];
-	int sud = tab->t[(x + 1) * tab->col + y];
-	int ouest = tab->t[x * tab->col + (y - 1)];
-	int est = tab->t[x * tab->col + (y + 1)];
-	if (nord != pierre && nord > 0)
+	if (nord != actuel && nord > 0)
 	{
 		marquage(tab, x - 1, y, nord);
 	}
-	if (est != pierre && est > 0)
+	if (est != actuel && est > 0)
 	{
 		marquage(tab, x, y + 1, est);
 	}
-	if (sud != pierre && sud > 0)
+	if (sud != actuel && sud > 0)
 	{
 		marquage(tab, x + 1, y, sud);
 	}
-	if (ouest != pierre && ouest > 0)
+	if (ouest != actuel && ouest > 0)
 	{
 		marquage(tab, x, y - 1, ouest);
 	}
@@ -438,32 +430,27 @@ void opp_visiter(plateau *tab, int x, int y)
 void marq_case_vide(plateau *tab, pierre j)
 {
 	int x, y = 0;
-	//int pierre = tab->t[x * tab->col + y];
-	// int nord = tab->t[(x - 1) * tab->col + y];
-	// int sud = tab->t[(x + 1) * tab->col + y];
-	// int ouest = tab->t[x * tab->col + (y - 1)];
-	// int est = tab->t[x * tab->col + (y + 1)];
 	for (x = 0; x < tab->col; x++)
 	{
 		for (y = 0; y < tab->col; y++)
 		{
-			if (tab->t[x * tab->col + y] == j)
+			if (actuel == j)
 			{
-				if (tab->t[(x - 1) * tab->col + y] == 0 && x > 1)
+				if (nord == 0 && x > 1)
 				{
-					tab->t[(x - 1) * tab->col + y] = 10;
+					nord = 10;
 				}
-				if (tab->t[x * tab->col + (y + 1)] == 0 && y < 5)
+				if (est == 0 && y < 5)
 				{
-					tab->t[x * tab->col + (y + 1)] = 10;
+					est = 10;
 				}
-				if (tab->t[(x + 1) * tab->col + y] == 0 && x < 5)
+				if (sud == 0 && x < 5)
 				{
-					tab->t[(x + 1) * tab->col + y] = 10;
+					sud = 10;
 				}
-				if (tab->t[x * tab->col + (y - 1)] == 0 && y > 1)
+				if (ouest == 0 && y > 1)
 				{
-					tab->t[x * tab->col + (y - 1)] = 10;
+					ouest = 10;
 				}
 			}
 		}
@@ -480,7 +467,7 @@ int somme_liberte(plateau *tab, pierre j)
 	{
 		for (y = 0; y < tab->col; y++)
 		{
-			if (tab->t[x * tab->col + y] == 10)
+			if (actuel == 10)
 			{
 				res++;
 			}
@@ -493,15 +480,16 @@ int somme_liberte(plateau *tab, pierre j)
 void eliminer(plateau *tab, pierre j)
 {
 	int x, y;
+	
 	if (somme_liberte(tab, j) == 0)
 	{
 		for (x = 0; x < tab->col; x++)
 		{
 			for (y = 0; y < tab->col; y++)
 			{
-				if (tab->t[x * tab->col + y] == j)
+				if (actuel == j)
 				{
-					tab->t[x * tab->col + y] = 0;
+					actuel = 0;
 				}
 			}
 		}
@@ -513,22 +501,23 @@ void remise_a_zero(plateau *tab)
 {
 
 	int x, y;
+
 	for (x = 0; x < tab->col; x++)
 	{
 		for (y = 0; y < tab->col; y++)
 		{
-			if (tab->t[x * tab->col + y] == 11)
+			if (actuel == 11)
 			{
-				tab->t[x * tab->col + y] = 1;
+				actuel = 1;
 			}
-			else if (tab->t[x * tab->col + y] == 12)
+			else if (actuel == 12)
 			{
-				tab->t[x * tab->col + y] = 2;
+				actuel = 2;
 			}
 			else
 			{
-				if (tab->t[x * tab->col + y] == 10)
-					tab->t[x * tab->col + y] = 0;
+				if (actuel == 10)
+					actuel = 0;
 			}
 		}
 	}
@@ -596,8 +585,6 @@ void saisir_probleme(plateau *tab)
 	}
 }
 
-
-
 /* Sélectionner un problème de Go */
 void choix_probleme(void){
 	int choix_tmp = 1;
@@ -624,23 +611,28 @@ int main()
 	tab = creer(sx, sy);
 
 	/*création de pierre*/
-	//pierre pj1 = BLACK;
-	//pierre pj2 = WHITE;
+	pierre pj1 = BLACK;
+	pierre pj2 = WHITE;
 
 	/*Pointeur vers tab*/
 	plateau *ptr;
 	ptr = &tab;
 
 	/* Tableau de jeu init */
-	//voirtab(ptr);
+	voirtab(ptr);
 	// printf(" 0:PC , 1:NO , 2:SE, 3:NE, 4:SO \n");
-	// printf(" la pierre est dans le coin : %d \n", est_coin(ptr, 5, 5));
-	// printf(" la pierre est isole : %d \n", est_isole(ptr, 5, 5));
-	// printf(" le nombre de liberté est : %d \n", nb_liberte(ptr, 0, 0));
-	// printf(" le nombre de liberte d'une paire : %d \n", nb_liberte_paire(ptr, 0, 5, 0, 4));
-	// printf(" Savoir si c'est une paire %d \n", est_paire(ptr, 0, 5, 0, 4));
-	// printf(" le nombre de liberte d'un triplet : %d \n", nb_liberte_triplet(ptr, 0, 5, 0, 4, 0, 3));
-	// printf(" Savoir si c'est un triplet %d \n", est_triplet(ptr, 0, 5, 0, 4, 0, 3));
+	placer_pierre(ptr, 0, 0, pj1);
+	placer_pierre(ptr, 1, 0, pj1);
+	placer_pierre(ptr, 0, 1, pj2);
+	placer_pierre(ptr, 5, 3, pj2);
+
+	printf(" la pierre est dans le coin : %d \n", est_coin(ptr, 5, 5));
+	printf(" la pierre est isole : %d \n", est_isole(ptr, 0, 0));
+	printf(" le nombre de liberté est : %d \n", nb_liberte(ptr, 0, 0));
+	printf(" le nombre de liberte d'une paire : %d \n", nb_liberte_paire(ptr, 0, 0, 1, 0));
+	printf(" Savoir si c'est une paire %d \n", est_paire(ptr, 0, 0, 1, 0));
+	printf(" le nombre de liberte d'un triplet : %d \n", nb_liberte_triplet(ptr, 0, 5, 0, 4, 0, 3));
+	printf(" Savoir si c'est un triplet %d \n", est_triplet(ptr, 0, 5, 0, 4, 0, 3));
 
 	//opp_visiter(ptr,0,1);
 
