@@ -1,6 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define actuel tab->t[x * tab->col + y]
+#define nord tab->t[(x - 1) * tab->col + y]
+#define sud tab->t[(x + 1) * tab->col + y]
+#define ouest tab->t[x * tab->col + (y - 1)]
+#define est tab->t[x * tab->col + (y + 1)]
+
 enum content
 {
 	EMPTY,
@@ -8,6 +14,25 @@ enum content
 	WHITE
 };
 typedef enum content pierre;
+
+enum section
+{
+	S1 = 1,
+	S2,
+	S3
+};
+typedef enum section menu;
+
+enum quest
+{
+	Q0,
+	Q1,
+	Q2,
+	Q3,
+	Q4,
+	Q5
+};
+typedef enum quest question;
 
 enum corner
 {
@@ -29,17 +54,12 @@ struct tableau
 };
 typedef struct tableau plateau;
 
-typedef enum{
+typedef enum
+{
 	PROB1 = 1,
 	PROB2,
 	PROB3,
-}prob;
-
-#define actuel tab->t[x * tab->col + y]
-#define	nord tab->t[(x - 1) * tab->col + y]
-#define	sud tab->t[(x + 1) * tab->col + y]
-#define	ouest tab->t[x * tab->col + (y - 1)]
-#define	est tab->t[x * tab->col + (y + 1)]
+} prob;
 
 /*Création d'un plateau*/
 plateau creer(int x, int y)
@@ -98,12 +118,12 @@ int est_isole(plateau *tab, int x, int y)
 	// int nord = tab->t[SIZE = 36];
 	// int nord = tab->t[i][j];
 	//int coord = x* tab->col + y;
-	if(actuel == 0) {
+	if (actuel == 0)
+	{
 		puts("Il n'y a pas de pierre placer ici !");
 		return -1;
 	}
 	int c = est_coin(tab, x, y);
-	printf("%d %d %d %d \n", nord, sud, ouest, est);
 	switch (c)
 	{
 	case NO:
@@ -336,6 +356,7 @@ int est_paire(plateau *tab, int x, int y, int x2, int y2)
 			}
 		}
 	}
+	printf("Ce n'est pas une paire de pierre \n");
 	return 0;
 }
 
@@ -361,6 +382,7 @@ int est_triplet(plateau *tab, int x, int y, int x2, int y2, int x3, int y3)
 	}
 	return 0;
 }
+
 /* Fonctionne seulement dans l'ordre croissant ou décroissant!*/
 int nb_liberte_triplet(plateau *tab, int x, int y, int x2, int y2, int x3, int y3)
 {
@@ -370,7 +392,6 @@ int nb_liberte_triplet(plateau *tab, int x, int y, int x2, int y2, int x3, int y
 	}
 	return -1;
 }
-
 
 /* Marquage groupe pierre placé */
 void ft_marquage(plateau *tab, int x, int y, pierre j, int m)
@@ -480,7 +501,7 @@ int somme_liberte(plateau *tab, pierre j)
 void eliminer(plateau *tab, pierre j)
 {
 	int x, y;
-	
+
 	if (somme_liberte(tab, j) == 0)
 	{
 		for (x = 0; x < tab->col; x++)
@@ -530,12 +551,12 @@ void saisir_probleme(plateau *tab)
 	int p = 0;
 	int x, y;
 	int fin = 1;
-	printf("Veuillez saisir un problème en plaçant des pierres (\"BLACK\" ou \"WHITE\") sur le plateau de jeu : \n");
+	printf("Veuillez saisir quelques pierres (\"BLACK\" = 1 ou \"WHITE\" = 2) sur le plateau de jeu : \n");
 	while (fin != 0)
 	{
 	pierre_inconnu:
 		voirtab(tab);
-		printf("Vous voulez placer une pierre \"BLACK\" ou \"WHITE\" ? \n");
+		printf("Vous voulez placer une pierre \"BLACK\" = 1 ou \"WHITE\" = 2 ? \n");
 		scanf("%d", &p);
 		switch (p)
 		{
@@ -550,7 +571,7 @@ void saisir_probleme(plateau *tab)
 			goto pierre_inconnu;
 		}
 	re_saisir_coord:
-		puts("Indiquer maintenant les coordonnées de la pierre sur le plateau");
+		puts("Indiquer les coordonnées de la pierre sur le plateau");
 		puts("La valeur en x :");
 		scanf("%d", &x);
 		puts("La valeur en y :");
@@ -586,9 +607,10 @@ void saisir_probleme(plateau *tab)
 }
 
 /* Sélectionner un problème de Go */
-void choix_probleme(void){
+void choix_probleme(void)
+{
 	int choix_tmp = 1;
-	prob choix; 
+	prob choix;
 
 	printf("Veuillez choisir un problème : \n");
 	printf("1-Probleme 1\n");
@@ -597,9 +619,200 @@ void choix_probleme(void){
 
 	scanf("%d", &choix_tmp);
 	choix = (prob)choix_tmp;
-
 }
 
+/* Selectionner la question pour avoir une réponse */
+void choix_question(plateau *tab)
+{
+	question q;
+	int question_choisit = 0;
+	int x, y, x2, y2, x3, y3;
+retour_menu:
+	printf("0- placer des pierres sur tableau \n");
+	printf("1- quel est le nombre de libertés de la pierre isolée (x,y) ? \n");
+	printf("2- quel est le nombre de libertés de la paire de pierres (x,y), (x', y') ? \n");
+	printf("3- quel est le nombre de libertés du triplet de pierres (x,y), (x', y'), (x', y') ? \n");
+	printf("4- la pierre (x,y) est-elle isolée ?\n");
+	printf("5- quel est le nombre de libertés de la pierre non isolée (x,y) ? \n");
+
+	scanf("%d", &question_choisit);
+	q = (question)question_choisit;
+
+	switch (q)
+	{
+	case Q0:
+		saisir_probleme(tab);
+		goto retour_menu;
+
+	case Q1:
+		puts("Indiquer les coordonnées de la pierre sur le plateau");
+		puts("La valeur en x :");
+		scanf("%d", &x);
+		puts("La valeur en y :");
+		scanf("%d", &y);
+		if (est_isole(tab, x, y))
+			printf("La pierre est isolée et a %d libertée(s)\n", nb_liberte(tab, x, y));
+		goto retour_menu;
+
+	case Q2:
+		puts("Indiquer les coordonnées de la première pierre sur le plateau");
+		puts("La valeur en x :");
+		scanf("%d", &x);
+		puts("La valeur en y :");
+		scanf("%d", &y);
+		puts("Indiquer les coordonnées de la seconde pierre sur le plateau");
+		puts("La valeur en x :");
+		scanf("%d", &x2);
+		puts("La valeur en y :");
+		scanf("%d", &y2);
+		if (est_paire(tab, x, y, x2, y2))
+			printf("La paire de pierre a %d liberté \n", nb_liberte_paire(tab, x, y, x2, y2));
+		goto retour_menu;
+
+	case Q3:
+		puts("Indiquer les coordonnées de la première pierre sur le plateau");
+		puts("La valeur en x :");
+		scanf("%d", &x);
+		puts("La valeur en y :");
+		scanf("%d", &y);
+		puts("Indiquer les coordonnées de la seconde pierre sur le plateau");
+		puts("La valeur en x :");
+		scanf("%d", &x2);
+		puts("La valeur en y :");
+		scanf("%d", &y2);
+		puts("Indiquer les coordonnées de la troisième pierre sur le plateau");
+		puts("La valeur en x :");
+		scanf("%d", &x3);
+		puts("La valeur en y :");
+		scanf("%d", &y3);
+		if (est_triplet(tab, x, y, x2, y2, x3, y3))
+			printf("Le triplet de pierre a %d liberté \n", nb_liberte_triplet(tab, x, y, x2, y2, x3, y3));
+		goto retour_menu;
+
+	case Q4:
+		puts("Indiquer les coordonnées de la pierre sur le plateau");
+		puts("La valeur en x :");
+		scanf("%d", &x);
+		puts("La valeur en y :");
+		scanf("%d", &y);
+		if (est_isole(tab, x, y))
+		{
+			printf("La pierre est isolée\n");
+		}
+		else
+		{
+			printf("La pierre n'est pas isolée \n");
+		}
+		goto retour_menu;
+
+	case Q5:
+		puts("Indiquer les coordonnées de la pierre sur le plateau");
+		puts("La valeur en x :");
+		scanf("%d", &x);
+		puts("La valeur en y :");
+		scanf("%d", &y);
+		if (!est_isole(tab, x, y))
+		{
+			printf("La pierre n'est pas isolée et a %d libertée(s) \n", nb_liberte(tab, x, y));
+		}
+		else
+		{
+			printf("La pierre est isolée \n");
+		}
+		goto retour_menu;
+
+	default:
+		printf("Terminer\n");
+		break;
+	}
+}
+
+/* repérage, 
+marquage, 
+somme de possibilité, 
+remplacement ajacent qui enlève le plus possibilés au groupe scaner au départ,
+placer la pierre blanche (donc la plus honéreuse) */
+/*
+void resoudre_ia(plateau *tab, pierre p)
+{
+	//int nb_liberte = 0;
+	int x, y;
+	int test = 0;
+	for (x = 0; x < tab->col; x++)
+	{
+
+		for (y = 0; y < tab->col; y++)
+		{
+			if (actuel != p && actuel > 0) //on a la pierre adverse
+			{
+				
+				if(test== 0) {
+					marquage(tab, x, y, actuel);
+					marq_case_vide(tab, actuel);
+					test=1;
+				}
+			}
+		}
+	}
+	
+	for (x = 0; x < tab->col; x++)
+	{
+
+		for (y = 0; y < tab->col; y++)
+		{
+			somme_liberte(tab, actuel);	
+		}
+	}
+
+	for (x = 0; x < tab->col; x++)
+	{
+		for (y = 0; y < tab->col; y++)
+		{
+			if (actuel == 10)
+			{
+				actuel = p;
+			}
+		}
+	}
+}
+*/
+
+void jouer(void)
+{
+	int end = 0;
+	while (!end)
+	{
+		//resoudre(x, y)
+		//scanf(x, y)
+	}
+}
+
+void demarrer(plateau *tab)
+{
+	int menu_select = 0;
+	menu m;
+
+	printf("Menu jeu de go : \n 1: Questions du projets \n 2: Saisir un problème manuellement \n 3: Résoudre un problème simple de go \n 4: Résoudre un problème de go (en cours) \n");
+	scanf("%d", &menu_select);
+	m = (menu)menu_select;
+
+	switch (m)
+	{
+	case S1:
+		choix_question(tab);
+		break;
+	case S2:
+		saisir_probleme(tab);
+		break;
+	case S3:
+		choix_probleme();
+		jouer();
+		break;
+	default:
+		printf("Terminer \n");
+		break;
+	}
+}
 
 int main()
 {
@@ -612,7 +825,7 @@ int main()
 
 	/*création de pierre*/
 	pierre pj1 = BLACK;
-	pierre pj2 = WHITE;
+	pierre pj2IA = WHITE;
 
 	/*Pointeur vers tab*/
 	plateau *ptr;
@@ -620,31 +833,24 @@ int main()
 
 	/* Tableau de jeu init */
 	voirtab(ptr);
+	placer_pierre(ptr, 1, 1, pj1);
+	voirtab(ptr);
+	resoudre_ia(ptr, pj2IA);
+	voirtab(ptr);
 	// printf(" 0:PC , 1:NO , 2:SE, 3:NE, 4:SO \n");
-	placer_pierre(ptr, 0, 0, pj1);
-	placer_pierre(ptr, 1, 0, pj1);
-	placer_pierre(ptr, 0, 1, pj2);
-	placer_pierre(ptr, 5, 3, pj2);
-
-	printf(" la pierre est dans le coin : %d \n", est_coin(ptr, 5, 5));
-	printf(" la pierre est isole : %d \n", est_isole(ptr, 0, 0));
-	printf(" le nombre de liberté est : %d \n", nb_liberte(ptr, 0, 0));
-	printf(" le nombre de liberte d'une paire : %d \n", nb_liberte_paire(ptr, 0, 0, 1, 0));
-	printf(" Savoir si c'est une paire %d \n", est_paire(ptr, 0, 0, 1, 0));
-	printf(" le nombre de liberte d'un triplet : %d \n", nb_liberte_triplet(ptr, 0, 5, 0, 4, 0, 3));
-	printf(" Savoir si c'est un triplet %d \n", est_triplet(ptr, 0, 5, 0, 4, 0, 3));
 
 	//opp_visiter(ptr,0,1);
 
 	//marquage(ptr, 3, 2, 2);
-	saisir_probleme(ptr);
+	//saisir_probleme(ptr);
 	//eliminer(ptr,11);
 	//printf("nb lib du groupe de la pierre placée vaut : %d \n", somme_liberte(ptr, 12));
 	//voirtab(ptr);
 	//printf("\n");
 	//remise_a_zero(ptr);
 	//voirtab(ptr);
-
+	//choix_question(ptr);
+	//demarrer(ptr);
 	return 0;
 }
 // gcc -Wall -Wextra -Wpedantic
