@@ -33,7 +33,7 @@ void voirtab(plateau *tab)
         for (y = 0; y < tab->col; y++)
         {
 
-            if(actuel > 0)
+            if (actuel > 0)
                 printf("  %d  ", actuel);
             else if (actuel == 0)
                 printf("  .  ");
@@ -387,7 +387,6 @@ void marquage(plateau *tab, int x, int y, pierre j)
     ft_marquage(tab, x, y, j, 0);
 }
 
-
 /* marquage du groupe de pierre opposée adjacente a la pierre placée */
 void marquage_adjacent(plateau *tab, int x, int y)
 {
@@ -515,7 +514,8 @@ void update_plateau(plateau *tab)
 /*Saisir un problème manuellement */
 void saisir_probleme(plateau *tab)
 {
-    char reponse;
+    char c;
+    int q;
     int p = 0;
     int x, y;
     int fin = 1;
@@ -524,7 +524,7 @@ void saisir_probleme(plateau *tab)
     {
         //voirtab(tab);
     pierre_inconnu:
-        printf("Choisissez une pierre : \n 1-BLACK \n 2-WHITE \n");
+        printf("Choisissez une pierre : \n 1- BLACK(1) \n 2- WHITE(2) \n");
         scanf("%d", &p);
         switch (p)
         {
@@ -554,27 +554,20 @@ void saisir_probleme(plateau *tab)
             printf("ATTENTION, vous ne pouvez pas placer de pierre ici : [x = %d, y = %d] \n", x, y);
             goto re_saisir_coord;
         }
-    pierre_suivante:
-        printf("Pierre suivante ?  (o/n) \n");
-        scanf("%c", &reponse);
-        if (scanf("%c", &reponse) == 0)
+        q = 1;
+        printf("Continuer ? (o/n)\n");
+        while (q == 1)
         {
-            puts("");
-        }
-        if (reponse != 'n' && reponse != 'o')
-        {
-            puts("Veuillez entrer 'o' ou 'n'");
-            goto pierre_suivante;
-        }
-        if ('n' == reponse)
-        {
-            printf("Fin de la saisie \n");
-            return;
+            scanf("%c", &c);
+            if (c == 'o')
+                q = 0;
+            else if (c == 'n')
+                return;
         }
     }
 }
 
-/* Resolution atari simple */
+/* probleme atari simple */
 void probleme_atari1(plateau *tab)
 {
     int pb = BLACK;
@@ -589,6 +582,7 @@ void probleme_atari1(plateau *tab)
     printf("\n");
 }
 
+/* probleme atari sur groupe */
 void probleme_atari2(plateau *tab)
 {
     int pb = BLACK;
@@ -606,8 +600,25 @@ void probleme_atari2(plateau *tab)
     printf("\n");
 }
 
+void probleme_atari3(plateau *tab)
+{
+    int pb = BLACK;
+    int pw = WHITE;
+    placer_pierre(tab, 2, 1, pb);
+    placer_pierre(tab, 2, 2, pb);
+    placer_pierre(tab, 1, 3, pb);
+    placer_pierre(tab, 2, 3, pw);
+    placer_pierre(tab, 3, 3, pb);
+    placer_pierre(tab, 4, 3, pw);
+    placer_pierre(tab, 3, 2, pw);
+    placer_pierre(tab, 4, 4, pb);
+    printf("\n");
+    voirtab(tab);
+    printf("JOUEUR = BLACK(1) -- IA = WHITE(2)\n");
+    printf("\n");
+}
 
-/*Resolution si groupe possède 1 liberté*/
+/*S'échappe si 1 liberté restante*/
 void echapper(plateau *tab)
 {
     int x, y;
@@ -637,10 +648,10 @@ void echapper(plateau *tab)
     update_plateau(tab);
 }
 
-/*Resolution si groupe possède 1 liberté*/
-void capturer(plateau *tab)
+/*Capture un groupe adjacent s'il n'a plus de libertés*/
+void capture_groupe(plateau *tab)
 {
-    int x, y;
+    int x, y, x_tmp, y_tmp;
     int marq = 10;
     pierre pw = WHITE;
     pierre pb = BLACK;
@@ -650,12 +661,13 @@ void capturer(plateau *tab)
         {
             if (actuel == pw)
             {
-                marquage_adjacent(tab, x, y);
-                marq_case_vide(tab, pb + marq);
-                break;
+                x_tmp = x;
+                y_tmp = y;
             }
         }
     }
+    marquage_adjacent(tab, x_tmp, y_tmp);
+    marq_case_vide(tab, pb + marq);
     if (somme_liberte(tab, pb + marq) == 1)
     {
         for (x = 0; x < tab->col; x++)
@@ -667,43 +679,88 @@ void capturer(plateau *tab)
             }
         }
     }
-    eliminer(tab,pb + marq);
+    voirtab(tab);
+    eliminer(tab, pb + marq);
+    update_plateau(tab);
+}
+
+void capturer_atari(plateau *tab)
+{
+    int x, y;
+    int marq = 10;
+    pierre pw = WHITE;
+    pierre pb = BLACK;
+    for (x = 0; x < tab->col; x++)
+    {
+        for (y = 0; y < tab->col; y++)
+        {
+            if (actuel == pb)
+            {
+                if (nb_liberte(tab,x,y) == 1){
+                    if (nord + est + sud + ouest == 6){
+                        marquage(tab,x,y,pb);
+                    }
+                }
+            }
+        }
+    }
+    marq_case_vide(tab, pb + marq);
+    if (somme_liberte(tab, pb + marq) == 1)
+    {
+        for (x = 0; x < tab->col; x++)
+        {
+            for (y = 0; y < tab->col; y++)
+            {
+                if (actuel == 10)
+                    actuel = pw;
+            }
+        }
+    }
+    //voirtab(tab);
+    eliminer(tab, pb + marq);
     update_plateau(tab);
 }
 
 void demarrer(plateau *tab)
 {
     int menu_select = 0;
+    int end = 0;
     menu m;
-main_menu:
-    printf("\n");
-    voirtab(tab);
-    printf("\n");
-    printf("MENU JEU DE GO: \n 1- Questions du projets \n 2- Saisir un problème manuellement \n 3- Résoudre un problème simple de go \n 4- Jouer une partie libre contre l'IA \n");
-    scanf("%d", &menu_select);
-    m = (menu)menu_select;
-
-    switch (m)
+    while (!end)
     {
-    case S1:
-        choix_question(tab);
-        goto main_menu;
-        break;
-    case S2:
-        saisir_probleme(tab);
-        goto main_menu;
-        break;
-    case S3:
-        choix_probleme(tab);
-        goto main_menu;
-        break;
-    case S4:
-        jouer(tab);
-        goto main_menu;
-        break;
-    default:
-        printf("Terminer \n");
-        break;
+        printf("\n");
+        voirtab(tab);
+        printf("\n");
+        printf("MENU JEU DE GO: \n 1- Questions du projet \n 2- Saisir un problème manuellement \n 3- Résoudre un problème simple de go \n 4- Jouer une partie libre contre l'IA \n 5- Vider le Goban \n 6- Quitter \n");
+        scanf("%d", &menu_select);
+        m = (menu)menu_select;
+
+        switch (m)
+        {
+        case S1:
+            choix_question(tab);
+            break;
+        case S2:
+            saisir_probleme(tab);
+            break;
+        case S3:
+            choix_probleme();
+            break;
+        case S4:
+            jouer(tab);
+            break;
+        case S5:
+            for (int x = 0; x < tab->lig; x++)
+                for (int y = 0; y < tab->col; y++)
+                    actuel = 0;
+            break;
+        case S6:
+            end = 1;
+            break;
+        default:
+            printf("Terminer \n");
+            break;
+        }
     }
 }
 
@@ -713,7 +770,6 @@ void choix_question(plateau *tab)
     question q;
     int question_choisit = 0;
     int x, y, x2, y2, x3, y3;
-retour_menu:
     printf("\n");
     voirtab(tab);
     printf("\n");
@@ -723,7 +779,7 @@ retour_menu:
     printf("3- Quel est le nombre de libertés du triplet de pierres (x,y), (x', y'), (x', y') ? \n");
     printf("4- La pierre (x,y) est-elle isolée ?\n");
     printf("5- Quel est le nombre de libertés de la pierre non isolée (x,y) ? \n");
-    printf("6- Menu principal de Go \n");
+    printf("6- Menu principal\n");
 
     scanf("%d", &question_choisit);
     q = (question)question_choisit;
@@ -732,10 +788,11 @@ retour_menu:
     {
     case Q0:
         saisir_probleme(tab);
-        goto retour_menu;
+        break;
 
     case Q1:
         voirtab(tab);
+        printf("1- Quel est le nombre de libertés de la pierre isolée (x,y) ? \n");
         puts("Indiquer les coordonnées de la pierre sur le plateau");
         puts("La valeur en x :");
         scanf("%d", &x);
@@ -743,16 +800,17 @@ retour_menu:
         scanf("%d", &y);
         if (est_isole(tab, x, y))
         {
-            printf("La pierre est isolée et a %d liberté(s)\n", nb_liberte(tab, x, y));
+            printf("Réponse : La pierre isolée en (%d,%d) a %d liberté(s)\n", x, y, nb_liberte(tab, x, y));
         }
         else
         {
             printf("Aucune pierre isolée à cet emplacement !\n");
         }
-        goto retour_menu;
+        break;
 
     case Q2:
         voirtab(tab);
+        printf("2- Quel est le nombre de libertés de la paire de pierres (x,y), (x', y') ? \n");
         puts("Indiquer les coordonnées de la première pierre sur le plateau");
         puts("La valeur en x :");
         scanf("%d", &x);
@@ -765,16 +823,17 @@ retour_menu:
         scanf("%d", &y2);
         if (est_paire(tab, x, y, x2, y2))
         {
-            printf("La paire sélectionnée a %d liberté(s) \n", nb_liberte_paire(tab, x, y, x2, y2));
+            printf("La paire sélectionnée [(%d,%d),(%d,%d)] a %d liberté(s) \n", x, y, x2, y2, nb_liberte_paire(tab, x, y, x2, y2));
         }
         else
         {
             printf("...Aucune paire n'a été trouvée...\n");
         }
-        goto retour_menu;
+        break;
 
     case Q3:
         voirtab(tab);
+        printf("3- Quel est le nombre de libertés du triplet de pierres (x,y), (x', y'), (x', y') ? \n");
         puts("Indiquer les coordonnées de la première pierre sur le plateau");
         puts("La valeur en x :");
         scanf("%d", &x);
@@ -792,15 +851,17 @@ retour_menu:
         scanf("%d", &y3);
         if (est_triplet(tab, x, y, x2, y2, x3, y3))
         {
-            printf("Le triplet sélectionné a %d liberté(s) \n", nb_liberte_triplet(tab, x, y, x2, y2, x3, y3));
+            printf("Le triplet sélectionné [(%d,%d),(%d,%d),(%d,%d)] a %d liberté(s) \n", x, y, x2, y2, x3, y3, nb_liberte_triplet(tab, x, y, x2, y2, x3, y3));
         }
         else
         {
             printf("...Aucun triplet n'a été trouvé...\n");
         }
-        goto retour_menu;
+        break;
 
     case Q4:
+        voirtab(tab);
+        printf("4- La pierre (x,y) est-elle isolée ?\n");
         puts("Indiquer les coordonnées de la pierre sur le plateau");
         puts("La valeur en x :");
         scanf("%d", &x);
@@ -808,15 +869,21 @@ retour_menu:
         scanf("%d", &y);
         if (est_isole(tab, x, y))
         {
-            printf("Oui, la pierre sélectionnée est isolée\n");
+            printf("Réponse : Oui, la pierre sélectionnée en (%d,%d) est isolée\n", x, y);
+        }
+        else if (!est_isole(tab, x, y))
+        {
+            printf("Réponse : Non, la pierre sélectionnée en (%d,%d) n'est pas iséolée\n", x, y);
         }
         else
         {
-            printf("...Aucune pierre isolée sélectionnée...\n");
+            printf("...Aucune pierre sélectionnée...\n");
         }
-        goto retour_menu;
+        break;
 
     case Q5:
+        voirtab(tab);
+        printf("5- Quel est le nombre de libertés de la pierre non isolée (x,y) ? \n");
         puts("Indiquer les coordonnées de la pierre sur le plateau");
         puts("La valeur en x :");
         scanf("%d", &x);
@@ -824,13 +891,13 @@ retour_menu:
         scanf("%d", &y);
         if (actuel > 0 && !est_isole(tab, x, y))
         {
-            printf("La pierre n'est pas isolée et a %d libertée(s) \n", nb_liberte(tab, x, y));
+            printf("Réponse : La pierre non isolée en (%d,%d) a %d libertée(s) \n", x, y, nb_liberte(tab, x, y));
         }
         else
         {
             printf("...La pierre sélectionnée est isolée ou n'existe pas... \n");
         }
-        goto retour_menu;
+        break;
 
     case Q6:
         return;
@@ -851,12 +918,13 @@ void choix_probleme(void)
     atari = &goban;
     int choix_tmp = 1;
     prob choix;
-    char reponse;
+    char c;
+    int q;
 
     printf("Veuillez choisir un problème : \n");
-    printf("1-Echapper d'un Atari Simple N°1\n");
-    printf("2-Capturer en Atari Simple N°2\n");
-    printf("3-Probleme 3\n");
+    printf("1- Echapper a un Atari Simple\n");
+    printf("2- Capturer en Atari\n");
+    printf("3- Capturer une pierre en Atari\n");
 
     scanf("%d", &choix_tmp);
     choix = (prob)choix_tmp;
@@ -864,63 +932,69 @@ void choix_probleme(void)
     {
     case PROB1:
         probleme_atari1(atari);
-        printf("BLANC(2) est entourée par BLACK(1) en atari et peut etre supprimmée au prochain tour de BLACK(1)\n");
-        do
+        printf("WHITE(2) est entourée par BLACK(1) en atari et peut etre supprimmée au prochain tour de BLACK(1)\n");
+        q = 1;
+        printf("Résoudre ? (o/n)\n");
+        while (q == 1)
         {
-            printf("Voulez-vous résoudre ce problème simple de Go ? (o/n)\n");
-            scanf("%c", &reponse);
-            if (scanf("%c", &reponse) == 0)
-            {
-                puts("");
-            }
-            if (reponse == 'o')
-            {
-                echapper(atari);
-                printf("\n");
-                voirtab(atari);
-                printf("JOUEUR = BLACK(1) -- IA = WHITE(2)\n");
-                printf("\n");
-                printf("BLANC(2) joue et s'échappe\n");
-                printf("Problème résolu !\n");
-            }
-            if ('n' == reponse)
-            {
-                return;
-            }
-        } while (reponse != 'n' && reponse != 'o');
+            scanf("%c", &c);
+            if (c == 'o')
+                q = 0;
+            else if (c == 'n')
+                break;
+        }
+        echapper(atari);
+        printf("\n");
+        voirtab(atari);
+        printf("JOUEUR = BLACK(1) -- IA = WHITE(2)\n");
+        printf("\n");
+        printf("WHITE(2) joue et s'échappe\n");
+        printf("Problème résolu !\n");
 
         break;
 
     case PROB2:
         probleme_atari2(atari);
         printf("BLACK(1) est entourée par WHITE(2) en atari et peut etre supprimmée au prochain tour de WHITE(2)\n");
-        do
+        q = 1;
+        printf("Résoudre ? (o/n)\n");
+        while (q == 1)
         {
-            printf("Voulez-vous résoudre ce problème simple de Go ? (o/n)\n");
-            scanf("%c", &reponse);
-            if (scanf("%c", &reponse) == 0)
-            {
-                puts("");
-            }
-            if (reponse == 'o')
-            {
-                capturer(atari);
-                printf("\n");
-                voirtab(atari);
-                printf("JOUEUR = BLACK(1) -- IA = WHITE(2)\n");
-                printf("\n");
-                printf("WHITE(2) joue et prend BLACK(1) en un coup!\n");
-                printf("Problème résolu !\n");
-            }
-            if ('n' == reponse)
-            {
-                return;
-            }
-        } while (reponse != 'n' && reponse != 'o');
+            scanf("%c", &c);
+            if (c == 'o')
+                q = 0;
+            else if (c == 'n')
+                break;
+        }
+        capture_groupe(atari);
+        printf("\n");
+        voirtab(atari);
+        printf("JOUEUR = BLACK(1) -- IA = WHITE(2)\n");
+        printf("\n");
+        printf("WHITE(2) joue et prend le groupe BLACK(1) en un coup!\n");
+        printf("Problème résolu !\n");
 
         break;
     case PROB3:
-        /* code */
+        probleme_atari3(atari);
+        printf(" C'est à WHITE(2) de jouer ! Bien qu'il y ait d'autres pierres dans les environs, WHITE(2) devrait quand même prendre une pierre BLACK(1)\n");
+        q = 1;
+        printf("Résoudre ? (o/n)\n");
+        while (q == 1)
+        {
+            scanf("%c", &c);
+            if (c == 'o')
+                q = 0;
+            else if (c == 'n')
+                break;
+        }
+        capturer_atari(atari);
+        printf("\n");
+        voirtab(atari);
+        printf("JOUEUR = BLACK(1) -- IA = WHITE(2)\n");
+        printf("\n");
+        printf("WHITE(2) joue et prend la pierre BLACK(1) en atari!\n");
+        printf("Problème résolu !\n");
         break;
 
     default:
@@ -956,16 +1030,28 @@ void ia(plateau *tab, int x, int y, pierre p)
 /*Partie Libre contre l'IA comptage manuel*/
 void jouer(plateau *tab)
 {
-    int end = 0;
+    int end = 1;
     int pierre = 1;
     int x, y;
-    while (!end)
+    char c;
+    int q = 1;
+    while (end)
     {
 
         printf("\n");
         voirtab(tab);
         printf("JOUEUR = BLACK(1) -- IA = WHITE(2)\n");
         printf("\n");
+        printf("Continuer ? (o/n)\n");
+        while (q == 1)
+        {
+            scanf("%c", &c);
+            if (c == 'o')
+                q = 0;
+            else if (c == 'n'){
+                return;
+            }
+        }
         do
         {
             puts("Indiquer les coordonnées de la pierre sur le plateau");
@@ -996,5 +1082,6 @@ void jouer(plateau *tab)
         } while (actuel < 1);
         puts("...L'IA Joue... ");
         ia(tab, x, y, pierre);
+        q = 1;
     }
 }

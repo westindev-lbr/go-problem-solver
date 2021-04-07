@@ -20,7 +20,9 @@ enum section
 	S1 = 1,
 	S2,
 	S3,
-    S4
+    S4,
+    S5,
+    S6
 };
 typedef enum section menu;
 
@@ -113,7 +115,7 @@ int somme_liberte(plateau *tab, pierre j);
 void eliminer(plateau *tab, pierre j);
 
 /*reset du tableau pour fin du tour*/
-void remise_a_zero(plateau *tab);
+void update_plateau(plateau *tab);
 
 /*Saisir un problème manuellement */
 void saisir_probleme(plateau *tab);
@@ -127,5 +129,23 @@ void choix_question(plateau *tab);
 void jouer(plateau *tab);
 
 void demarrer(plateau *tab);
+
+void ia(plateau *tab, int x, int y, pierre p);
+
+void capturer_atari(plateau *tab);
+
+/*Capture un groupe adjacent s'il n'a plus de libertés*/
+void capture_groupe(plateau *tab);
+
+/*S'échappe si 1 liberté restante*/
+void echapper(plateau *tab);
+
+void probleme_atari3(plateau *tab);
+
+/* probleme atari sur groupe */
+void probleme_atari2(plateau *tab);
+
+/* probleme atari simple */
+void probleme_atari1(plateau *tab);
 
 #endif
