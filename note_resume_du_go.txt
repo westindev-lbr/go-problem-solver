@@ -1,0 +1,56 @@
+page 3 :
+Le go se joue à deux sur une grille avec des pierres noires et blanches. Parfois, des grilles plus petites sont utilisées, en particulier pour l’initiation (pour nous 6x6).
+À tour de rôle, les joueurs posent une pierre de leur couleur sur une intersection inoccupée de la grille ou bien ils passent.
+Le but du jeu est d’occuper ou d’entourer avec ses pierres le plus grand
+nombre possible d’intersections de la grille, la partie s’arrêtant lorsque
+les deux joueurs pensent que ce nombre ne variera plus.
+Une fois posées, les pierres ne se déplacent pas, mais elle peuvent être
+éventuellement capturées et retirées de la grille par l’adversaire.
+
+page 4
+Parler du contexte
+Nous avons fait des parties de go en ligne pour se familiarisé avec les règles.
+
+page 5
+Nous avons décidé de partir sur une structure composée de tableaux
+pour représenter le plateau à 2 dimensions (6x6).
+Un pointeur vers ce tableau, nommé plateau utilisé en paramètre sur l'ensemble des fonctions qui compose notre programme.
+Ainsi que des énumérateurs pour représenter les pierres sous forme
+d’entier dans ce plateau(Goban).
++ les corrdonnées de celle-ci en lignes et colones
+
+
+page 6
+Juste décomposition du programme 
+
+
+page 7
+Réponses aux question de l'ennoncer donc une fonction qui permet de répondre à chacune d'entre elle
+
+
+page 8
+On va vour présenter les différentes fonctions utilisés
+La compléxité du nombre de libertés d'une pierre dans un tableau à 2 dimensions
+Présentation de nb_liberte, est_coin, est_isole, (est_paire)
+
+
+page 9
+Fonction des problèmes avec les fameux go_to, scanf etc...
+
+page 10
+Notion de marquage + groupe + pierre placés (groupe adjacent, les liberté du groupes marqués (on ajoute +10 à la valeur de la pierre))
+
+
+page 11
+balayge du tableau + vérification de la pierre de l'ia + marquage adjacent + marquage de case vide 
++ si nb liberté est égale à 1 alors rebalayge et la case qui vaut 10 est remplasser par la pierre de l'ia + l'ia joue + élimination + remise à zéro du tableau
+Après qu'elle est trouvé une pierre noire ayant 1 liberté il faut qu'elle regarde si elle est entouré de pierre adverse 
+
+
+page 12
+On peut passer notre tour, en saisissant les coordonnées d'une pierre joueur déjà placer, dans un soucis de ne pas sortir de la boucle de jeu (on a fait comme ça)
+L'ia basique qui jouer dès qu'elle trouve un emplacement libre autour de toi.
+
+
+Conclusion
+QUE DU POSITIF ! 

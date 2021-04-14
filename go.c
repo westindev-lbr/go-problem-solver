@@ -57,7 +57,7 @@ int est_coin(plateau *tab, int x, int y)
     return PC;
 }
 
-/*savoir si un pierre est isolée*/
+/*savoir si une pierre est isolée*/
 int est_isole(plateau *tab, int x, int y)
 {
     int coin = est_coin(tab, x, y);
@@ -645,6 +645,7 @@ void echapper(plateau *tab)
             }
         }
     }
+    voirtab(tab);
     update_plateau(tab);
 }
 
@@ -668,6 +669,7 @@ void capture_groupe(plateau *tab)
     }
     marquage_adjacent(tab, x_tmp, y_tmp);
     marq_case_vide(tab, pb + marq);
+    //voirtab(tab);
     if (somme_liberte(tab, pb + marq) == 1)
     {
         for (x = 0; x < tab->col; x++)
@@ -679,7 +681,7 @@ void capture_groupe(plateau *tab)
             }
         }
     }
-    voirtab(tab);
+    //voirtab(tab);
     eliminer(tab, pb + marq);
     update_plateau(tab);
 }
@@ -705,6 +707,7 @@ void capturer_atari(plateau *tab)
         }
     }
     marq_case_vide(tab, pb + marq);
+    //voirtab(tab);
     if (somme_liberte(tab, pb + marq) == 1)
     {
         for (x = 0; x < tab->col; x++)
